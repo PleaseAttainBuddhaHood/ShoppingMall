@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.mapper.UserMapper">
+
+	<insert id="insert">
+	
+		INSERT INTO MEMBER(ID, PW, NAME, PHONE, ADDRESS, GENDER, EMAIL)
+		VALUES(#{id}, #{pw}, #{name}, #{phone}, #{address}, #{gender}, #{email} )
+	
+	</insert>
+	
+	<select id="joininfo" resultType="com.docmall.domain.UserVO" >
+	
+		SELECT * FROM MEMBER WHERE ID = 'user01'
+	
+	</select>
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.mapper.OrderMapper">
+
+	<select id="getOrderSequence" resultType="long">
+	
+		SELECT SEQ_ORD_CODE.NEXTVAL FROM DUAL
+	
+	</select>
+	
+
+	<insert id="orderSave" parameterType="com.docmall.domain.OrderVO">
+		<!-- 
+		<selectKey keyProperty="odr_code" order="BEFORE" resultType="long">
+			SELECT SEQ_ORD_CODE.NEXTVAL FROM DUAL
+		</selectKey>
+		 -->
+		INSERT INTO ORDER_TBL
+			(ODR_CODE, MEM_ID, ODR_NAME, ODR_ZIPCODE, ODR_ADDR, ODR_ADDR_D, ODR_PHONE, ODR_TOTAL_PRICE)
+		VALUES
+			(#{odr_code}, #{mem_id}, #{odr_name}, #{odr_zipcode}, #{odr_addr}, #{odr_addr_d}, #{odr_phone}, #{odr_total_price})
+	
+	</insert>
+	
+	<!-- 장바구니에서 주문상세작성 -->
+	<insert id="orderDetailSave">
+	
+		INSERT INTO ORDER_DETAIL_TBL
+			(ODR_CODE, PDT_NUM, ODR_AMOUNT, ODR_PRICE)
+		SELECT  
+			#{odr_code}, C.PDT_NUM,  C.CART_AMOUNT, P.PDT_PRICE * C.CART_AMOUNT
+		FROM 
+			CART_TBL C INNER JOIN PRODUCT_TBL P	
+		ON 
+			C.PDT_NUM = P.PDT_NUM 
+		WHERE 
+			C.MEM_ID = #{mem_id}
+	
+
+	</insert>
+	
+	<!-- 바로구매에서 주문상세작성 -->
+	<insert id="orderDirectDetailSave">
+	
+		INSERT INTO ORDER_DETAIL_TBL
+			(ODR_CODE, PDT_NUM, ODR_AMOUNT, ODR_PRICE)
+		VALUES
+			(#{odr_code}, #{pdt_num}, #{odr_amount}, #{odr_price})
+	
+	</insert>
+	
+	<!-- SEQ_PAYMENT_CODE.NEXTVAL -->
+	<insert id="paymentSave">
+	
+		INSERT INTO PAYMENT_TBL
+			(PAY_CODE, ODR_CODE, MEM_ID, PAY_METHOD, PAY_TOT_PRICE, PAY_NOBANK_PRICE, PAY_NOBANK_USER, PAY_NOBANK)
+		VALUES
+			(SEQ_PAYMENT_CODE.NEXTVAL, #{odr_code}, #{mem_id}, #{pay_method}, #{pay_tot_price}, #{pay_nobank_price}, #{pay_nobank_user}, #{pay_nobank})
+	
+	</insert>
+	
+	<select id="directOrder" resultType="com.docmall.domain.CartVOList">
+	
+		SELECT 
+			PDT_IMG_FOLDER, 
+			PDT_IMG, 
+			PDT_PRICE, 
+			#{cart_amount} as CART_AMOUNT, 
+			PDT_PRICE * #{cart_amount} AS SALES_PRICE, 
+			#{mem_id} as MEM_ID, 
+			PDT_NUM, 
+			pdt_name 
+		
+		FROM 
+			PRODUCT_TBL
+		WHERE 
+			PDT_NUM = #{pdt_num}
+	
+	</select>
+
+
+</mapper>
